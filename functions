@@ -1,0 +1,39 @@
+function set_root() {
+    root="$@"
+    test -z "$root" -o "$root" = '/' && {
+        root='';
+    } || {
+        test "${root:(-1)}" = '/' && root="${root:0:(-1)}";
+        test "${root:0:1}" = '/' || root="/$root";
+        test -d "$root" || {
+            echo "ERROR: root '$root' doesnt exist!" >&2;
+            echo;
+            exit 1;
+        };
+    }
+}
+
+function move_on() {
+    read -e -n1 -p 'continue y/*? ' yn;
+    test "$yn" = 'y' || exit 1;
+}
+
+function vi_file() {
+    stty -echo;
+    read -e -n1 -p 'edit n/*? ' yn;
+    stty echo;
+    echo -en "\r          \r";
+    test "$yn" = 'n' || vi $1 1>/dev/null;
+}
+
+function get_path() {
+    path='';
+    while [ -z "$path" ] ; do
+        #echo
+        read -e -p "$1 " -i "$2" path
+
+        if [ "${path:(-1)}" == '/' ]; then path="${path:0:(-1)}"; fi;
+        if [ "${path:0:1}" != '/' ]; then path="/$path"; fi;
+        #if [ -d "$path" ]; then yes_no "Directory $chdir already exist." || chdir=''; fi;
+    done
+}
